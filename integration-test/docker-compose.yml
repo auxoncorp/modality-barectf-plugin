@@ -1,0 +1,110 @@
+volumes:
+  modalityd_data:
+  modality_client_config:
+
+services:
+  modalityd:
+    image: ghcr.io/auxoncorp/modalityd:latest
+    volumes: [modalityd_data:/data-dir]
+    environment:
+      MODALITY_LICENSE_KEY: ${MODALITY_LICENSE_KEY}
+      MODALITY_ACCEPT_EULA: Y
+      NO_TLS: Y
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:14181/v1/alive"]
+      start_period: 2s
+      start_interval: 1s
+
+  modality-user-setup:
+    image: ghcr.io/auxoncorp/modality-reflector:latest
+    volumes: [modality_client_config:/root/.config/modality_cli]
+    depends_on: { modalityd: { condition: service_healthy } }
+    restart: no
+    environment: { MODALITY_URL: http://modalityd:14181/v1 }
+    entrypoint: ["bash", "-c", "/modality user create test "]
+
+  ctf-server:
+    build:
+      dockerfile_inline: |
+        FROM ghcr.io/auxoncorp/modality-reflector:latest
+        RUN apt-get update && apt-get install -y netcat
+        COPY ctf_stream /
+        COPY ctf-server.sh /
+        ENTRYPOINT []
+        CMD /ctf-server.sh
+    restart: no
+
+  reflector:
+    build:
+      context: ..
+      dockerfile_inline: |
+        FROM modality-barectf-build:latest
+        FROM ghcr.io/auxoncorp/modality-reflector:latest
+        RUN apt-get update && apt-get install -y netcat
+        COPY integration-test/ctf_stream /
+        COPY integration-test/effective_config.yaml /
+        COPY --from=0 /plugin-src/target/release/modality-barectf-tcp-collector /modality-reflector-plugins/collectors/
+        COPY --from=0 /plugin-src/target/release/modality-barectf-importer /modality-reflector-plugins/importers/
+    depends_on:
+      modality-user-setup: { condition: service_completed_successfully }
+      modalityd: { condition: service_healthy }
+      ctf-server: { condition: service_started }
+    volumes: [modality_client_config:/root/.config/modality_cli]
+    environment:
+      RUST_LOG: "modality_barectf_tcp_collector=debug,barectf_parser=debug"
+      MODALITY_LICENSE_KEY: ${MODALITY_LICENSE_KEY}
+      MODALITY_ACCEPT_EULA: Y
+      INGEST_PROTOCOL_PARENT_URL: modality-ingest://modalityd
+      MUTATION_PROTOCOL_PARENT_URL: modality-mutation://modalityd
+      MODALITY_BARECTF_REMOTE: tcp://ctf-server:8888
+      MODALITY_BARECTF_CONFIG: /effective_config.yaml
+      MODALITY_BARECTF_CONNECT_TIMEOUT: 10s
+      REFLECTOR_OPTS: --collector barectf-tcp
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo -n > /dev/tcp/127.0.0.1/14188"]
+      start_period: 2s
+      start_interval: 1s
+
+  test-collector:
+    profiles:
+      - test-collector
+    build:
+      dockerfile_inline: |
+        FROM ghcr.io/auxoncorp/modality-reflector:latest
+        RUN apt-get update && apt-get install -y netcat
+        COPY ctf_stream /
+        COPY effective_config.yaml /
+        COPY *.sh /
+        COPY *.speqtr /
+        ENTRYPOINT []
+        CMD /test-collector.sh
+    depends_on:
+      reflector: { condition: service_healthy }
+    volumes:
+      - modality_client_config:/root/.config/modality_cli
+    environment:
+      MODALITY_URL: http://modalityd:14181/v1
+    restart: no
+
+  test-import:
+    profiles:
+      - test-import
+    build:
+      dockerfile_inline: |
+        FROM modality-barectf-build:latest
+        FROM ghcr.io/auxoncorp/modality-reflector:latest
+        COPY --from=0 /plugin-src/target/release/modality-barectf-importer /modality-reflector-plugins/importers/
+        COPY ctf_stream /
+        COPY effective_config.yaml /
+        COPY *.sh /
+        COPY *.speqtr /
+        ENTRYPOINT []
+        CMD /test-importer.sh
+    depends_on:
+      reflector: { condition: service_healthy }
+    volumes:
+      - modality_client_config:/root/.config/modality_cli
+    environment:
+      MODALITY_URL: http://modalityd:14181/v1
+      INGEST_PROTOCOL_PARENT_URL: modality-ingest://modalityd
+    restart: no

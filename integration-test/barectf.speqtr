@@ -1,0 +1,188 @@
+behavior "init"
+  nominal case "init"
+    init @ default as a
+    and
+    a.common_context.ercc = 98 and
+    a.id = 4 and
+    a.internal.barectf.clock.cycles = 0 and
+    a.internal.barectf.event.count = 1 and
+    a.internal.barectf.timestamp.cycles = 0 and
+    a.packet_context.beginning_timestamp = 0 and
+    a.packet_context.content_size.bits = 1928 and
+    a.packet_context.content_size.bytes = 241 and
+    a.packet_context.end_timestamp = 5 and
+    a.packet_context.events_discarded = 0 and
+    a.packet_context.packet_size.bits = 2048 and
+    a.packet_context.packet_size.bytes = 256 and
+    a.packet_context.sequence_number = 0 and
+    a.packet_context.pc = 22 and
+    a.packet_header.stream.id = 0 and
+    a.packet_header.stream.name = "default" and
+    a.packet_header.trace_uuid = "79e49040-21b5-42d4-a83b-646f78666b62" and
+    a.specific_context.cpu_id = 1 and
+    a.version = "1.0.0" and
+    a.timeline.clock.c_type = "uint64_t" and
+    a.timeline.clock.description = "timer clock" and
+    a.timeline.clock.frequency = 1000000000 and
+    a.timeline.clock.origin_is_unix_epoch = false and
+    a.timeline.clock.precision = 1 and
+    a.timeline.clock.uuid = "9168b5fb-9d29-4fa5-810f-714601309ffd" and
+    a.timeline.environment.version_major = 1 and
+    a.timeline.environment.version_minor = 2 and
+    a.timeline.modality_barectf.plugin.version = "0.1.0" and
+    a.timeline.name = "default" and
+    a.timeline.time_domain = "9168b5fb-9d29-4fa5-810f-714601309ffd" and
+    (a.timeline.modality_barectf.importer.config.file_name = "effective_config.yaml"
+    or a.timeline.modality_barectf.tcp_collector.remote = "tcp://ctf-server:8888")
+  end
+end
+
+behavior "foobar"
+  nominal case "foobar"
+    foobar @ default as a
+    and
+    a.internal.barectf.clock.cycles = 1 and
+    a.internal.barectf.event.count = 2 and 
+    a.internal.barectf.timestamp.cycles = 1 and
+    a.id = 3 and
+    a.packet_context.beginning_timestamp = 0 and
+    a.packet_context.content_size.bits = 1928 and
+    a.packet_context.content_size.bytes = 241 and
+    a.packet_context.end_timestamp = 5 and
+    a.packet_context.events_discarded = 0 and
+    a.packet_context.packet_size.bits = 2048 and
+    a.packet_context.packet_size.bytes = 256 and
+    a.packet_context.sequence_number = 0 and
+    a.packet_context.pc = 22 and
+    a.packet_header.stream.id = 0 and
+    a.packet_header.stream.name = "default" and
+    a.packet_header.trace_uuid = "79e49040-21b5-42d4-a83b-646f78666b62" and
+    a.val = 3 and
+    a.val2 = 21 and
+    a.log_level = "CRIT"
+  end
+end
+
+behavior "floats"
+  nominal case "floats"
+    floats @ default as a
+    and
+    a.internal.barectf.clock.cycles = 2 and
+    a.internal.barectf.event.count = 3 and 
+    a.internal.barectf.timestamp.cycles = 2 and
+    a.id = 2 and
+    a.packet_context.beginning_timestamp = 0 and
+    a.packet_context.content_size.bits = 1928 and
+    a.packet_context.content_size.bytes = 241 and
+    a.packet_context.end_timestamp = 5 and
+    a.packet_context.events_discarded = 0 and
+    a.packet_context.packet_size.bits = 2048 and
+    a.packet_context.packet_size.bytes = 256 and
+    a.packet_context.sequence_number = 0 and
+    a.packet_context.pc = 22 and
+    a.packet_header.stream.id = 0 and
+    a.packet_header.stream.name = "default" and
+    a.packet_header.trace_uuid = "79e49040-21b5-42d4-a83b-646f78666b62" and
+    a.f32 = 1.100000023841858e0 and
+    a.f64 = 2.2 and
+    a.log_level = "WARNING"
+  end
+end
+
+behavior "enums"
+  nominal case "enums"
+    enums @ default as a
+    and
+    a.internal.barectf.clock.cycles = 3 and
+    a.internal.barectf.event.count = 4 and 
+    a.internal.barectf.timestamp.cycles = 3 and
+    a.id = 1 and
+    a.packet_context.beginning_timestamp = 0 and
+    a.packet_context.content_size.bits = 1928 and
+    a.packet_context.content_size.bytes = 241 and
+    a.packet_context.end_timestamp = 5 and
+    a.packet_context.events_discarded = 0 and
+    a.packet_context.packet_size.bits = 2048 and
+    a.packet_context.packet_size.bytes = 256 and
+    a.packet_context.sequence_number = 0 and
+    a.packet_context.pc = 22 and
+    a.packet_header.stream.id = 0 and
+    a.packet_header.stream.name = "default" and
+    a.packet_header.trace_uuid = "79e49040-21b5-42d4-a83b-646f78666b62" and
+    a.common_context.ercc = 95 and
+    a.bar = "C" and
+    a.bar.container = -1 and
+    a.baz = "on/off" and
+    a.baz.container = 200 and
+    a.biz = "RUNNING" and
+    a.biz.container = 19 and
+    a.foo = "A" and
+    a.foo.container = 0
+  end
+end
+
+behavior "arrays"
+  nominal case "arrays"
+    arrays @ default as a
+    and
+    a.internal.barectf.clock.cycles = 4 and
+    a.internal.barectf.event.count = 5 and 
+    a.internal.barectf.timestamp.cycles = 4 and
+    a.id = 0 and
+    a.packet_context.beginning_timestamp = 0 and
+    a.packet_context.content_size.bits = 1928 and
+    a.packet_context.content_size.bytes = 241 and
+    a.packet_context.end_timestamp = 5 and
+    a.packet_context.events_discarded = 0 and
+    a.packet_context.packet_size.bits = 2048 and
+    a.packet_context.packet_size.bytes = 256 and
+    a.packet_context.sequence_number = 0 and
+    a.packet_context.pc = 22 and
+    a.packet_header.stream.id = 0 and
+    a.packet_header.stream.name = "default" and
+    a.packet_header.trace_uuid = "79e49040-21b5-42d4-a83b-646f78666b62" and
+    a.common_context.ercc = 94 and
+    a.bar.array.0 = "b0" and
+    a.bar.array.1 = "b1" and
+    a.bar.array.2 = "b2" and
+    a.foo.array.0 = 1 and
+    a.foo.array.1 = 2 and
+    a.foo.array.2 = 3 and
+    a.foo.array.3 = 4
+  end
+end
+
+behavior "shutdown"
+  nominal case "shutdown"
+    shutdown @ default as a
+    and
+    a.internal.barectf.clock.cycles = 5 and
+    a.internal.barectf.event.count = 6 and 
+    a.internal.barectf.timestamp.cycles = 5 and
+    a.id = 5 and
+    a.packet_context.beginning_timestamp = 5 and
+    a.packet_context.content_size.bits = 672 and
+    a.packet_context.content_size.bytes = 84 and
+    a.packet_context.end_timestamp = 5 and
+    a.packet_context.events_discarded = 0 and
+    a.packet_context.packet_size.bits = 2048 and
+    a.packet_context.packet_size.bytes = 256 and
+    a.packet_context.sequence_number = 1 and
+    a.packet_context.pc = 22 and
+    a.packet_header.stream.id = 0 and
+    a.packet_header.stream.name = "default" and
+    a.packet_header.trace_uuid = "79e49040-21b5-42d4-a83b-646f78666b62" and
+    a.common_context.ercc = 93
+  end
+end
+
+behavior "events"
+  nominal case "events"
+    init @ default
+      -> foobar @ default
+      -> floats @ default
+      -> enums @ default
+      -> arrays @ default
+      -> shutdown @ default
+  end
+end

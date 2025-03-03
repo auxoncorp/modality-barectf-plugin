@@ -1,0 +1,36 @@
+[package]
+name = "modality-barectf-plugin"
+version = "0.1.0"
+edition = "2021"
+authors = ["Jon Lamb <jon@auxon.io>"]
+description = "A Modality Reflector plugin suite for barectf-generated CTF trace data"
+license = "Apache-2.0"
+repository = "https://github.com/auxoncorp/modality-barectf-plugin"
+exclude = ["integration-test/"]
+
+[[bin]]
+name = "modality-barectf-importer"
+path = "src/bin/importer.rs"
+
+[[bin]]
+name = "modality-barectf-tcp-collector"
+path = "src/bin/tcp_collector.rs"
+
+[dependencies]
+anyhow = "1.0"
+auxon-sdk = { version = "2.2", features = ["modality", "deviant"] }
+toml = "0.8"
+serde = { version = "1.0", features=["derive"] }
+serde_yaml = "0.9.34"
+fxhash = "0.2"
+clap = { version = "4.5", features = ["derive", "env", "color"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "sync", "time", "tracing", "net", "signal", "net", "io-util", "fs"] }
+tokio-util = { version = "0.7", features = ["rt"] }
+tokio-stream = "0.1"
+futures-util = "0.3"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+internment = "0.8"
+humantime = "2.1"
+url = "2"
+barectf-parser = "0.3"

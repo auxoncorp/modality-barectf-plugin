@@ -1,0 +1,202 @@
+%YAML 1.2
+--- !<tag:barectf.org,2020/3/config>
+trace:
+  environment:
+    version_major: 1
+    version_minor: 2
+  type:
+    native-byte-order: little-endian
+    uuid: 79e49040-21b5-42d4-a83b-646f78666b62
+    $features:
+      magic-field-type:
+        class: unsigned-integer
+        size: 32
+        alignment: 32
+      data-stream-type-id-field-type:
+        class: unsigned-integer
+        size: 8
+        alignment: 8
+      uuid-field-type: true
+    clock-types:
+      default:
+        uuid: 9168b5fb-9d29-4fa5-810f-714601309ffd
+        description: timer clock
+        $c-type: uint64_t
+        frequency: 1000000000
+        precision: 1
+        origin-is-unix-epoch: false
+    data-stream-types:
+      default:
+        $is-default: true
+        $default-clock-type-name: default
+        $features:
+          packet:
+            beginning-timestamp-field-type:
+              class: unsigned-integer
+              size: 64
+              alignment: 64
+            end-timestamp-field-type:
+              class: unsigned-integer
+              size: 64
+              alignment: 64
+            total-size-field-type:
+              class: unsigned-integer
+              size: 16
+              alignment: 16
+            content-size-field-type:
+              class: unsigned-integer
+              size: 16
+              alignment: 8
+            discarded-event-records-counter-snapshot-field-type:
+              class: unsigned-integer
+              size: 16
+              alignment: 16
+            sequence-number-field-type:
+              class: unsigned-integer
+              size: 32
+              alignment: 32
+          event-record:
+            type-id-field-type:
+              class: unsigned-integer
+              size: 16
+              alignment: 8
+            timestamp-field-type:
+              class: unsigned-integer
+              size: 64
+              alignment: 64
+        packet-context-field-type-extra-members:
+        - pc:
+            field-type:
+              class: unsigned-integer
+              size: 32
+              alignment: 32
+        event-record-common-context-field-type:
+          class: structure
+          members:
+          - ercc:
+              field-type:
+                class: unsigned-integer
+                size: 32
+                alignment: 32
+        event-record-types:
+          init:
+            specific-context-field-type:
+              class: structure
+              members:
+              - cpu_id:
+                  field-type:
+                    class: signed-integer
+                    size: 32
+                    alignment: 32
+            payload-field-type:
+              class: structure
+              members:
+              - version:
+                  field-type:
+                    class: string
+          shutdown: {}
+          foobar:
+            log-level: 2
+            payload-field-type:
+              class: structure
+              members:
+              - val:
+                  field-type:
+                    class: unsigned-integer
+                    size: 32
+                    alignment: 8
+              - val2:
+                  field-type:
+                    class: unsigned-integer
+                    size: 16
+                    alignment: 8
+          floats:
+            log-level: 4
+            payload-field-type:
+              class: structure
+              members:
+              - f32:
+                  field-type:
+                    class: real
+                    size: 32
+                    alignment: 32
+              - f64:
+                  field-type:
+                    class: real
+                    size: 64
+                    alignment: 64
+          enums:
+            payload-field-type:
+              class: structure
+              members:
+              - foo:
+                  field-type:
+                    class: unsigned-enumeration
+                    size: 8
+                    alignment: 8
+                    mappings:
+                      A:
+                      - 0
+                      B:
+                      - 1
+              - bar:
+                  field-type:
+                    class: signed-enumeration
+                    size: 16
+                    alignment: 8
+                    mappings:
+                      C:
+                      - -1
+                      D:
+                      - -22
+              - biz:
+                  field-type:
+                    class: signed-enumeration
+                    size: 32
+                    alignment: 32
+                    mappings:
+                      RUNNING:
+                      - 17
+                      - - 19
+                        - 24
+                      - -144
+                      WAITING:
+                      - 18
+                      - - -32
+                        - -25
+                      STOPPED:
+                      - 202
+              - baz:
+                  field-type:
+                    class: unsigned-enumeration
+                    size: 32
+                    alignment: 8
+                    preferred-display-base: hexadecimal
+                    mappings:
+                      steam-machine:
+                      - 18
+                      on/off:
+                      - 15
+                      - - 200
+                        - 1000
+                      the-prime-time-of-your-life:
+                      - 2
+          arrays:
+            payload-field-type:
+              class: structure
+              members:
+              - foo:
+                  field-type:
+                    class: static-array
+                    length: 4
+                    element-field-type:
+                      class: unsigned-integer
+                      size: 16
+                      alignment: 8
+              - bar:
+                  field-type:
+                    class: dynamic-array
+                    element-field-type:
+                      class: string
+...
+

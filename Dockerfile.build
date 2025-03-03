@@ -1,0 +1,6 @@
+FROM rust:slim-bullseye
+RUN apt-get update && apt-get install pkg-config libssl-dev -y
+COPY Cargo.toml Cargo.lock /plugin-src/
+COPY src/ /plugin-src/src
+WORKDIR /plugin-src
+RUN cargo build --release

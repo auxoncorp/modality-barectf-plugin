@@ -1,0 +1,30 @@
+name: CI
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Auth to GHCR
+        env:
+          AUXON_GHCR_TOKEN_RO: ${{ secrets.AUXON_GHCR_TOKEN_RO }}
+        run: |
+          echo $AUXON_GHCR_TOKEN_RO | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Check, lint and test
+        run: |
+          cargo fmt --all --check
+          cargo check --all-targets
+          cargo clippy -- -W clippy::all -D warnings
+          cargo test
+
+      - name: Integration test
+        env:
+          MODALITY_LICENSE_KEY: ${{ secrets.MODALITY_LICENSE_KEY }}
+        run: |
+          cd integration-test
+          ./go.sh
