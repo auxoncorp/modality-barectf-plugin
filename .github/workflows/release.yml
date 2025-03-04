@@ -1,0 +1,161 @@
+name: Release
+
+# Push events to matching v*, i.e. v1.0, v20.15.10
+on:
+  push:
+    tags:
+    - 'v*'
+
+jobs:
+  check:
+    timeout-minutes: 30
+    name: Check Signed Tag
+    runs-on: ubuntu-latest
+    outputs:
+      stringver: ${{ steps.contentrel.outputs.stringver }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          path: src/github.com/auxon/modality-barectf-plugin
+
+      - name: Check signature
+        run: |
+          RELEASE_TAG=${{ github.ref }}
+          RELEASE_TAG="${RELEASE_TAG#refs/tags/}"
+          TAGCHECK=$(git tag -v ${RELEASE_TAG} 2>&1 >/dev/null) ||
+          echo "${TAGCHECK}" | grep -q "error" && {
+              echo "::error::tag ${RELEASE_TAG} is not a signed tag. Failing release process."
+              exit 1
+          } || {
+              echo "Tag ${RELEASE_TAG} is signed."
+              exit 0
+          }
+        working-directory: src/github.com/auxon/modality-barectf-plugin
+
+  linux_package:
+    name: Build Release Package (Linux)
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        distro: [ubuntu-22.04, ubuntu-22.04-arm, ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.distro }}
+    needs: [check]
+    steps:
+      - name: Print version
+        run: |
+          RELEASE_TAG=${{ github.ref }}
+          RELEASE_TAG="${RELEASE_TAG#refs/tags/}"
+          RELEASE_VERSION="${RELEASE_TAG#v}"
+          DISTRO=${{ matrix.distro }}
+          echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
+          echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
+          echo "DISTRO=$DISTRO" >> $GITHUB_ENV
+
+          if [ "$DISTRO" == "ubuntu-22.04" ]; then
+            DISTRO_VERSION="22.04"
+            DISTRO_ARCH="amd64"
+          elif [ "$DISTRO" == "ubuntu-22.04-arm" ]; then
+            DISTRO_VERSION="22.04"
+            DISTRO_ARCH="arm64"
+          elif [ "$DISTRO" == "ubuntu-24.04" ]; then
+            DISTRO_VERSION="24.04"
+            DISTRO_ARCH="amd64"
+          elif [ "$DISTRO" == "ubuntu-24.04-arm" ]; then
+            DISTRO_VERSION="24.04"
+            DISTRO_ARCH="arm64"
+          fi
+          echo "DISTRO_VERSION=$DISTRO_VERSION" >> $GITHUB_ENV
+          echo "DISTRO_ARCH=$DISTRO_ARCH" >> $GITHUB_ENV
+
+          echo "Release tag: $RELEASE_TAG"
+          echo "Release version: $RELEASE_VERSION"
+          echo "Distro: $DISTRO"
+          echo "Distro version: $DISTRO_VERSION"
+          echo "Distro arch: $DISTRO_ARCH"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Build release binaries
+        run: cargo build --release
+
+      - name: Rename artifacts
+        run: |
+          cp target/release/modality-barectf-importer target/release/modality-barectf-importer_${{ env.RELEASE_VERSION }}+${{ env.DISTRO_VERSION }}_${{ env.DISTRO_ARCH }}
+          cp target/release/modality-barectf-tcp-collector target/release/modality-barectf-tcp-collector_${{ env.RELEASE_VERSION }}+${{ env.DISTRO_VERSION }}_${{ env.DISTRO_ARCH }}
+
+      - name: Create github release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          draft: false
+          prerelease: false
+          name: Release ${{ env.RELEASE_VERSION }}
+          fail_on_unmatched_files: true
+          files: |
+            target/release/modality-barectf-importer_${{ env.RELEASE_VERSION }}+${{ env.DISTRO_VERSION }}_${{ env.DISTRO_ARCH }}
+            target/release/modality-barectf-tcp-collector_${{ env.RELEASE_VERSION }}+${{ env.DISTRO_VERSION }}_${{ env.DISTRO_ARCH }}
+
+  mac_package:
+    name: Build Release Package (Mac)
+    timeout-minutes: 60
+    runs-on: macos-latest
+    needs: [check]
+    steps:
+      - name: Print version
+        run: |
+          RELEASE_TAG=${{ github.ref }}
+          RELEASE_TAG="${RELEASE_TAG#refs/tags/}"
+          RELEASE_VERSION="${RELEASE_TAG#v}"
+          echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
+          echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
+          echo "Release tag: $RELEASE_TAG"
+          echo "Release version: $RELEASE_VERSION"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install rust toolchains (x86, arm)
+        run: |
+          rustup target add x86_64-apple-darwin
+          rustup target add aarch64-apple-darwin
+
+      - name: Build packages (intel)
+        shell: bash
+        run: |
+          cargo build --release --target x86_64-apple-darwin
+          cp target/x86_64-apple-darwin/release/modality-barectf-importer target/x86_64-apple-darwin/release/modality-barectf-importer_${{ env.RELEASE_VERSION }}+mac_amd64
+          cp target/x86_64-apple-darwin/release/modality-barectf-tcp-collector target/x86_64-apple-darwin/release/modality-barectf-tcp-collector_${{ env.RELEASE_VERSION }}+mac_amd64
+
+      - name: Build packages (arm)
+        shell: bash
+        run: |
+          cargo build --release --target aarch64-apple-darwin
+          cp target/aarch64-apple-darwin/release/modality-barectf-importer target/aarch64-apple-darwin/release/modality-barectf-importer_${{ env.RELEASE_VERSION }}+mac_arm64
+          cp target/aarch64-apple-darwin/release/modality-barectf-tcp-collector target/aarch64-apple-darwin/release/modality-barectf-tcp-collector_${{ env.RELEASE_VERSION }}+mac_arm64
+
+      - name: Create github release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          draft: false
+          prerelease: false
+          name: Release ${{ env.RELEASE_VERSION }}
+          fail_on_unmatched_files: true
+          files: |
+            target/x86_64-apple-darwin/release/modality-barectf-importer_${{ env.RELEASE_VERSION }}+mac_amd64
+            target/x86_64-apple-darwin/release/modality-barectf-tcp-collector_${{ env.RELEASE_VERSION }}+mac_amd64
+            target/aarch64-apple-darwin/release/modality-barectf-importer_${{ env.RELEASE_VERSION }}+mac_arm64
+            target/aarch64-apple-darwin/release/modality-barectf-tcp-collector_${{ env.RELEASE_VERSION }}+mac_arm64
