@@ -29,7 +29,6 @@ behavior "init"
     a.timeline.clock.uuid = "9168b5fb-9d29-4fa5-810f-714601309ffd" and
     a.timeline.environment.version_major = 1 and
     a.timeline.environment.version_minor = 2 and
-    a.timeline.modality_barectf.plugin.version = "0.1.0" and
     a.timeline.name = "default" and
     a.timeline.time_domain = "9168b5fb-9d29-4fa5-810f-714601309ffd" and
     (a.timeline.modality_barectf.importer.config.file_name = "effective_config.yaml"
