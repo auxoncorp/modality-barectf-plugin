@@ -13,6 +13,7 @@ use tracing::{error, info};
 
 /// Import barectf stream files
 #[derive(Debug, clap::Parser)]
+#[clap(version, about = "Import barectf stream files", long_about = None)]
 struct ImporterOpts {
     /// The barectf effective-configuration yaml file
     config: Option<PathBuf>,

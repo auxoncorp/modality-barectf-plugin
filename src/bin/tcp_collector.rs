@@ -19,6 +19,7 @@ use url::Url;
 
 /// Collect barectf streams from a TCP connection
 #[derive(Debug, clap::Parser)]
+#[clap(version, about = "Collect barectf streams from a TCP connection", long_about = None)]
 struct CollectorOpts {
     /// Specify a connection timeout.
     /// Accepts durations like "10ms" or "1minute 2seconds 22ms".
