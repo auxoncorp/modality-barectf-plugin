@@ -14,7 +14,7 @@ use tokio::{
 };
 use tokio_stream::StreamExt;
 use tokio_util::codec::FramedRead;
-use tracing::{debug, info};
+use tracing::{debug, error, info};
 use url::Url;
 
 /// Collect barectf streams from a TCP connection
@@ -37,10 +37,6 @@ struct CollectorOpts {
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default, rename_all = "kebab-case")]
 struct CollectorConfig {
-    /// The barectf effective-configuration yaml file
-    #[serde(deserialize_with = "from_str")]
-    config: Option<PathBuf>,
-
     /// Specify a connection timeout.
     /// Accepts durations like "10ms" or "1minute 2seconds 22ms".
     #[serde(deserialize_with = "from_str", alias = "connect_timeout")]
@@ -73,11 +69,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     // Time domain is handled expclicitly by the plugin
     config.time_domain = None;
 
+    let bctf_cfg_from_conf_file = match config.plugin.common.envsub_config_path() {
+        Ok(maybe_cfg) => maybe_cfg,
+        Err(e) => {
+            error!(%e, "Failed to run envsub on effective-configuration yaml path from reflector configuration file");
+            config.plugin.common.config.clone()
+        }
+    };
+
     let bctf_cfg_path = opts
         .config
         .as_ref()
-        .or(config.plugin.config.as_ref())
+        .or(bctf_cfg_from_conf_file.as_ref())
         .ok_or_else(|| anyhow!("Missing barectf effective-configuration yaml file"))?;
+    info!(file = %bctf_cfg_path.display(), "Reading effective-configuration yaml");
     let bctf_cfg_content = fs::read_to_string(&bctf_cfg_path).await.map_err(|e| {
         anyhow!(
             "Failed to open barectf effective-configuration yaml file '{}'. {}",

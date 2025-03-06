@@ -9,7 +9,7 @@ use std::path::PathBuf;
 use tokio::{fs, io::BufReader};
 use tokio_stream::StreamExt;
 use tokio_util::codec::FramedRead;
-use tracing::info;
+use tracing::{error, info};
 
 /// Import barectf stream files
 #[derive(Debug, clap::Parser)]
@@ -26,10 +26,6 @@ struct ImporterOpts {
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default, rename_all = "kebab-case")]
 struct ImporterConfig {
-    /// The barectf effective-configuration yaml file
-    #[serde(deserialize_with = "from_str")]
-    config: Option<PathBuf>,
-
     /// The binary CTF stream(s) file
     #[serde(deserialize_with = "from_str")]
     file: Option<PathBuf>,
@@ -55,11 +51,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     // Time domain is handled expclicitly by the plugin
     config.time_domain = None;
 
+    let bctf_cfg_from_conf_file = match config.plugin.common.envsub_config_path() {
+        Ok(maybe_cfg) => maybe_cfg,
+        Err(e) => {
+            error!(%e, "Failed to run envsub on effective-configuration yaml path from reflector configuration file");
+            config.plugin.common.config.clone()
+        }
+    };
+
     let bctf_cfg_path = opts
         .config
         .as_ref()
-        .or(config.plugin.config.as_ref())
+        .or(bctf_cfg_from_conf_file.as_ref())
         .ok_or_else(|| anyhow!("Missing barectf effective-configuration yaml file"))?;
+    info!(file = %bctf_cfg_path.display(), "Reading effective-configuration yaml");
     let bctf_cfg_content = fs::read_to_string(&bctf_cfg_path).await.map_err(|e| {
         anyhow!(
             "Failed to open barectf effective-configuration yaml file '{}'. {}",
