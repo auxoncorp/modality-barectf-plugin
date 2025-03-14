@@ -1,6 +1,6 @@
 [package]
 name = "modality-barectf-plugin"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2021"
 authors = ["Jon Lamb <jon@auxon.io>"]
 description = "A Modality Reflector plugin suite for barectf-generated CTF trace data"
@@ -16,14 +16,20 @@ path = "src/bin/importer.rs"
 name = "modality-barectf-tcp-collector"
 path = "src/bin/tcp_collector.rs"
 
+[[bin]]
+name = "modality-barectf-proxy-collector"
+path = "src/bin/proxy_collector.rs"
+
 [dependencies]
 anyhow = "1.0"
 auxon-sdk = { version = "2.3", features = ["modality", "deviant"] }
 toml = "0.8"
 serde = { version = "1.0", features=["derive"] }
 serde_yaml = "0.9.34"
+serde_json = "1.0"
 fxhash = "0.2"
 clap = { version = "4.5", features = ["derive", "env", "color"] }
+clap-num = "1.2"
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "sync", "time", "tracing", "net", "signal", "net", "io-util", "fs"] }
 tokio-util = { version = "0.7", features = ["rt"] }
 tokio-stream = "0.1"
@@ -33,4 +39,6 @@ tracing-subscriber = "0.3"
 internment = "0.8"
 humantime = "2.1"
 url = "=2.5.2"
+goblin = "0.9"
 barectf-parser = "0.3"
+rtt-proxy = { git = "https://github.com/auxoncorp/trace-recorder-rtt-proxy.git", branch = "main" }
