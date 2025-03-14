@@ -91,6 +91,7 @@ jobs:
         run: |
           cp target/release/modality-barectf-importer target/release/modality-barectf-importer_${{ env.RELEASE_VERSION }}+${{ env.DISTRO_VERSION }}_${{ env.DISTRO_ARCH }}
           cp target/release/modality-barectf-tcp-collector target/release/modality-barectf-tcp-collector_${{ env.RELEASE_VERSION }}+${{ env.DISTRO_VERSION }}_${{ env.DISTRO_ARCH }}
+          cp target/release/modality-barectf-proxy-collector target/release/modality-barectf-tcp-collector_${{ env.RELEASE_VERSION }}+${{ env.DISTRO_VERSION }}_${{ env.DISTRO_ARCH }}
 
       - name: Create github release
         id: create_release
@@ -105,6 +106,7 @@ jobs:
           files: |
             target/release/modality-barectf-importer_${{ env.RELEASE_VERSION }}+${{ env.DISTRO_VERSION }}_${{ env.DISTRO_ARCH }}
             target/release/modality-barectf-tcp-collector_${{ env.RELEASE_VERSION }}+${{ env.DISTRO_VERSION }}_${{ env.DISTRO_ARCH }}
+            target/release/modality-barectf-proxy-collector_${{ env.RELEASE_VERSION }}+${{ env.DISTRO_VERSION }}_${{ env.DISTRO_ARCH }}
 
   mac_package:
     name: Build Release Package (Mac)
@@ -136,6 +138,7 @@ jobs:
           cargo build --release --target x86_64-apple-darwin
           cp target/x86_64-apple-darwin/release/modality-barectf-importer target/x86_64-apple-darwin/release/modality-barectf-importer_${{ env.RELEASE_VERSION }}+mac_amd64
           cp target/x86_64-apple-darwin/release/modality-barectf-tcp-collector target/x86_64-apple-darwin/release/modality-barectf-tcp-collector_${{ env.RELEASE_VERSION }}+mac_amd64
+          cp target/x86_64-apple-darwin/release/modality-barectf-proxy-collector target/x86_64-apple-darwin/release/modality-barectf-tcp-collector_${{ env.RELEASE_VERSION }}+mac_amd64
 
       - name: Build packages (arm)
         shell: bash
@@ -143,6 +146,7 @@ jobs:
           cargo build --release --target aarch64-apple-darwin
           cp target/aarch64-apple-darwin/release/modality-barectf-importer target/aarch64-apple-darwin/release/modality-barectf-importer_${{ env.RELEASE_VERSION }}+mac_arm64
           cp target/aarch64-apple-darwin/release/modality-barectf-tcp-collector target/aarch64-apple-darwin/release/modality-barectf-tcp-collector_${{ env.RELEASE_VERSION }}+mac_arm64
+          cp target/aarch64-apple-darwin/release/modality-barectf-proxy-collector target/aarch64-apple-darwin/release/modality-barectf-tcp-collector_${{ env.RELEASE_VERSION }}+mac_arm64
 
       - name: Create github release
         id: create_release
@@ -159,3 +163,4 @@ jobs:
             target/x86_64-apple-darwin/release/modality-barectf-tcp-collector_${{ env.RELEASE_VERSION }}+mac_amd64
             target/aarch64-apple-darwin/release/modality-barectf-importer_${{ env.RELEASE_VERSION }}+mac_arm64
             target/aarch64-apple-darwin/release/modality-barectf-tcp-collector_${{ env.RELEASE_VERSION }}+mac_arm64
+            target/aarch64-apple-darwin/release/modality-barectf-proxy-collector_${{ env.RELEASE_VERSION }}+mac_arm64

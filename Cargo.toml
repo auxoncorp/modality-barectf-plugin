@@ -1,6 +1,6 @@
 [package]
 name = "modality-barectf-plugin"
-version = "0.4.0"
+version = "0.5.0"
 edition = "2021"
 authors = ["Jon Lamb <jon@auxon.io>"]
 description = "A Modality Reflector plugin suite for barectf-generated CTF trace data"
