@@ -17,7 +17,7 @@ use tokio::{
     fs,
     io::{self, AsyncReadExt, AsyncWriteExt, BufReader},
     net::TcpStream,
-    time::Duration,
+    time::{Duration, Instant},
 };
 use tokio_stream::StreamExt;
 use tokio_util::codec::FramedRead;
@@ -676,13 +676,16 @@ async fn start_session_retry_loop(
     connect_timeout: Option<Duration>,
     cfg: &ProxySessionConfig,
 ) -> Result<TcpStream, Box<dyn std::error::Error + Send + Sync>> {
-    if let Ok(Ok(s)) =
-        tokio::time::timeout(attach_timeout, start_session(remote, connect_timeout, cfg)).await
-    {
-        Ok(s)
-    } else {
-        start_session(remote, connect_timeout, cfg).await
+    let start = Instant::now();
+    while Instant::now().duration_since(start) <= attach_timeout {
+        match tokio::time::timeout(attach_timeout, start_session(remote, connect_timeout, cfg))
+            .await
+        {
+            Ok(Ok(s)) => return Ok(s),
+            _ => continue,
+        }
     }
+    start_session(remote, connect_timeout, cfg).await
 }
 
 async fn start_session(
@@ -734,11 +737,14 @@ async fn connect_retry_loop(
     timeout: Duration,
 ) -> Result<TcpStream, Box<dyn std::error::Error + Send + Sync>> {
     info!(remote = %remote, timeout = ?timeout, "Connecting to to remote");
-    if let Ok(Ok(s)) = tokio::time::timeout(timeout, TcpStream::connect(remote)).await {
-        Ok(s)
-    } else {
-        Ok(TcpStream::connect(remote).await?)
+    let start = Instant::now();
+    while Instant::now().duration_since(start) <= timeout {
+        match tokio::time::timeout(timeout, TcpStream::connect(remote)).await {
+            Ok(Ok(s)) => return Ok(s),
+            _ => continue,
+        }
     }
+    Ok(TcpStream::connect(remote).await?)
 }
 
 async fn get_rtt_symbol<T: io::AsyncRead + io::AsyncSeek + std::marker::Unpin>(
