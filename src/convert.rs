@@ -57,6 +57,11 @@ impl TimelineExt for ClockType {
         opt_attr("clock.uuid", self.uuid.map(|id| id.to_string()), &mut attrs);
         opt_attr("clock.description", self.description.as_ref(), &mut attrs);
         attr("clock.c_type", self.c_type.as_str(), &mut attrs);
+        if self.origin_is_unix_epoch {
+            attr("clock_style", "absolute", &mut attrs);
+        } else {
+            attr("clock_style", "relative", &mut attrs);
+        }
 
         attrs
     }
@@ -169,7 +174,12 @@ impl EventExt for Event {
     fn event_attrs(&self) -> Vec<(AttrKey, AttrVal)> {
         let mut attrs = Vec::new();
 
-        attr("id", self.id, &mut attrs);
+        attr("internal.barectf.event.id", self.id, &mut attrs);
+        attr(
+            "internal.barectf.event.name",
+            self.name.as_str(),
+            &mut attrs,
+        );
         attr("name", self.name.as_str(), &mut attrs);
         attr("internal.barectf.clock.cycles", self.timestamp, &mut attrs);
         match self.log_level {
