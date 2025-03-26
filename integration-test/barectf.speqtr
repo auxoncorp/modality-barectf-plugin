@@ -3,7 +3,7 @@ behavior "init"
     init @ default as a
     and
     a.common_context.ercc = 98 and
-    a.id = 4 and
+    a.internal.barectf.event.id = 4 and
     a.internal.barectf.clock.cycles = 0 and
     a.internal.barectf.event.count = 1 and
     a.internal.barectf.timestamp.cycles = 0 and
@@ -43,7 +43,7 @@ behavior "foobar"
     a.internal.barectf.clock.cycles = 1 and
     a.internal.barectf.event.count = 2 and 
     a.internal.barectf.timestamp.cycles = 1 and
-    a.id = 3 and
+    a.internal.barectf.event.id = 3 and
     a.packet_context.beginning_timestamp = 0 and
     a.packet_context.content_size.bits = 1928 and
     a.packet_context.content_size.bytes = 241 and
@@ -69,7 +69,7 @@ behavior "floats"
     a.internal.barectf.clock.cycles = 2 and
     a.internal.barectf.event.count = 3 and 
     a.internal.barectf.timestamp.cycles = 2 and
-    a.id = 2 and
+    a.internal.barectf.event.id = 2 and
     a.packet_context.beginning_timestamp = 0 and
     a.packet_context.content_size.bits = 1928 and
     a.packet_context.content_size.bytes = 241 and
@@ -95,7 +95,7 @@ behavior "enums"
     a.internal.barectf.clock.cycles = 3 and
     a.internal.barectf.event.count = 4 and 
     a.internal.barectf.timestamp.cycles = 3 and
-    a.id = 1 and
+    a.internal.barectf.event.id = 1 and
     a.packet_context.beginning_timestamp = 0 and
     a.packet_context.content_size.bits = 1928 and
     a.packet_context.content_size.bytes = 241 and
@@ -127,7 +127,7 @@ behavior "arrays"
     a.internal.barectf.clock.cycles = 4 and
     a.internal.barectf.event.count = 5 and 
     a.internal.barectf.timestamp.cycles = 4 and
-    a.id = 0 and
+    a.internal.barectf.event.id = 0 and
     a.packet_context.beginning_timestamp = 0 and
     a.packet_context.content_size.bits = 1928 and
     a.packet_context.content_size.bytes = 241 and
@@ -158,7 +158,7 @@ behavior "shutdown"
     a.internal.barectf.clock.cycles = 5 and
     a.internal.barectf.event.count = 6 and 
     a.internal.barectf.timestamp.cycles = 5 and
-    a.id = 5 and
+    a.internal.barectf.event.id = 5 and
     a.packet_context.beginning_timestamp = 5 and
     a.packet_context.content_size.bits = 672 and
     a.packet_context.content_size.bytes = 84 and
